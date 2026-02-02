@@ -67,22 +67,22 @@ export class DatabaseStorage implements IStorage {
     const [stats] = await db.select().from(siteStats);
     if (!stats) {
       const [newStats] = await db.insert(siteStats).values({ visits: 0 }).returning();
-      return newStats;
+      return { visits: newStats.visits ?? 0 };
     }
-    return stats;
+    return { visits: stats.visits ?? 0 };
   }
 
   async incrementVisits(): Promise<{ visits: number }> {
     const [stats] = await db.select().from(siteStats);
     if (!stats) {
       const [newStats] = await db.insert(siteStats).values({ visits: 1 }).returning();
-      return newStats;
+      return { visits: newStats.visits ?? 1 };
     }
     const [updated] = await db.update(siteStats)
       .set({ visits: sql`${siteStats.visits} + 1` })
       .where(eq(siteStats.id, stats.id))
       .returning();
-    return updated;
+    return { visits: updated.visits ?? 0 };
   }
 }
 

@@ -6,7 +6,7 @@ import { GlassCard, PageTransition, Header } from "@/components/ui-components";
 
 export default function Leaderboard() {
   const { data: users, isLoading } = useUsersList();
-  const { deleteUser } = useDeleteUser();
+  const deleteUserMutation = useDeleteUser();
   const auth = localStorage.getItem("spygame_user");
   const currentUser = auth ? JSON.parse(auth) : null;
 
@@ -74,7 +74,7 @@ export default function Leaderboard() {
                         <td className="p-4 text-right">
                           <button
                             onClick={() => {
-                              if(confirm("Permanently delete this account?")) deleteUser.mutate(user.id);
+                              if(confirm("Permanently delete this account?")) deleteUserMutation.mutate(user.id);
                             }}
                             className="p-2 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                           >

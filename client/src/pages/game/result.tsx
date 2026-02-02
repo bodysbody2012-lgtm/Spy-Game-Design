@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { NeonButton, GlassCard, PageTransition, Header } from "@/components/ui-components";
 import { Trophy, Skull, RefreshCw, Home } from "lucide-react";
 import { CATEGORIES } from "@/hooks/use-game-logic";
 
 export default function GameResult() {
+  const [location, setLocation] = useLocation();
   const [view, setView] = useState<'reveal' | 'spy-guess' | 'final'>('reveal');
   const [gameState, setGameState] = useState<any>(null);
   const [voteResult, setVoteResult] = useState<any>(null);
