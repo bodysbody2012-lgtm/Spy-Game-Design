@@ -1,14 +1,23 @@
+import { useAuth } from "@/hooks/use-auth";
 import { useUsersList, useDeleteUser } from "@/hooks/use-game-data";
 import { Link } from "wouter";
-import { ArrowLeft, Trash2, Medal } from "lucide-react";
-import { GlassCard, PageTransition, Header, NeonButton } from "@/components/ui-components";
+import { ArrowLeft, Trash2, Medal, User as UserIcon } from "lucide-react";
+import { GlassCard, PageTransition, Header } from "@/components/ui-components";
 
 export default function Leaderboard() {
   const { data: users, isLoading } = useUsersList();
-  const { mutate: deleteUser } = useDeleteUser();
+  const { deleteUser } = useDeleteUser();
+  const auth = localStorage.getItem("spygame_user");
+  const currentUser = auth ? JSON.parse(auth) : null;
 
-  // Sort users by score descending
-  const sortedUsers = users?.slice().sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
+  // For regular users, only show their own score (account-specific leaderboard concept)
+  // For admin/host, show everyone
+  const isAdmin = currentUser?.username === 'admin';
+  const filteredUsers = isAdmin 
+    ? users 
+    : users?.filter((u: any) => u.username === currentUser?.username);
+
+  const sortedUsers = filteredUsers?.slice().sort((a: any, b: any) => (b.score || 0) - (a.score || 0));
 
   return (
     <div className="min-h-screen p-6 bg-black relative">
@@ -25,7 +34,7 @@ export default function Leaderboard() {
             </Link>
           </div>
 
-          <Header title="TOP AGENTS" subtitle="Global Rankings" />
+          <Header title={isAdmin ? "GLOBAL AGENTS" : "MY PERFORMANCE"} subtitle={isAdmin ? "Global Ranking Control" : "Your personal score record"} />
 
           <GlassCard className="p-0 overflow-hidden bg-black/60">
             <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
@@ -38,6 +47,7 @@ export default function Leaderboard() {
                       <th className="p-4 w-16 text-center">Rank</th>
                       <th className="p-4">Agent</th>
                       <th className="p-4 text-center">Score</th>
+                      {isAdmin && <th className="p-4 text-center">Password</th>}
                       <th className="p-4 w-16"></th>
                     </tr>
                   </thead>
@@ -45,28 +55,26 @@ export default function Leaderboard() {
                     {sortedUsers?.map((user: any, index: number) => (
                       <tr key={user.id} className="hover:bg-white/5 transition-colors group">
                         <td className="p-4 text-center font-bold font-mono text-gray-500">
-                          {index < 3 ? (
-                            <Medal className={`mx-auto h-5 w-5 ${
-                              index === 0 ? "text-yellow-400" : 
-                              index === 1 ? "text-gray-300" : "text-amber-600"
-                            }`} />
-                          ) : (
-                            `#${index + 1}`
-                          )}
+                          {isAdmin ? (index < 3 ? <Medal className={`mx-auto h-5 w-5 ${index === 0 ? "text-yellow-400" : index === 1 ? "text-gray-300" : "text-amber-600"}`} /> : `#${index + 1}`) : <UserIcon className="mx-auto h-5 w-5 text-primary" />}
                         </td>
                         <td className="p-4 font-medium flex items-center gap-2">
-                          <span className={index === 0 ? "text-yellow-400 font-bold text-lg" : "text-gray-200"}>
+                          <span className={user.username === currentUser?.username ? "text-primary font-bold" : "text-gray-200"}>
                             {user.username}
                           </span>
-                          {user.username === 'admin' && <span className="text-[10px] bg-white/10 px-1 rounded">HOST</span>}
+                          {user.isAdmin && <span className="text-[10px] bg-white/10 px-1 rounded">HOST</span>}
                         </td>
                         <td className="p-4 text-center font-mono font-bold text-primary text-lg">
                           {user.score || 0}
                         </td>
+                        {isAdmin && (
+                          <td className="p-4 text-center font-mono text-gray-400 text-sm">
+                            {user.password}
+                          </td>
+                        )}
                         <td className="p-4 text-right">
                           <button
                             onClick={() => {
-                              if(confirm("Remove this agent from the leaderboard?")) deleteUser(user.id);
+                              if(confirm("Permanently delete this account?")) deleteUser.mutate(user.id);
                             }}
                             className="p-2 text-gray-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                           >

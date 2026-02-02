@@ -5,11 +5,11 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
-  password: text("password").notNull(), // Storing plain text as requested for Host visibility
+  password: text("password").notNull(),
   isAdmin: boolean("is_admin").default(false),
   score: integer("score").default(0),
   gamesPlayed: integer("games_played").default(0),
-  tokenVersion: integer("token_version").default(0), // For force logout
+  tokenVersion: integer("token_version").default(0),
 });
 
 export const siteStats = pgTable("site_stats", {
@@ -35,4 +35,4 @@ export type UserStats = {
   gamesPlayed: number;
 };
 
-export type AdminUserView = User; // Admin sees everything including password
+export type AdminUserView = User;

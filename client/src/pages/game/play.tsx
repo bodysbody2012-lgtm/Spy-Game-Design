@@ -102,29 +102,33 @@ export default function GamePlay() {
   }
 
   // 3. All players revealed -> Discussion Phase
+  const assignments = JSON.parse(localStorage.getItem("spygame_current_session") || "{}").assignments || [];
+
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
       <PageTransition>
         <div className="text-center space-y-8 max-w-md w-full">
-          <Header title="DISCUSS" subtitle="Ask questions. Find the Spy." />
+          <Header title="DISCUSS" subtitle="Follow the question order" />
 
-          <div className="p-8 border border-white/10 rounded-full w-64 h-64 mx-auto flex items-center justify-center bg-gradient-to-br from-primary/20 to-transparent relative">
-             <div className="absolute inset-0 rounded-full border border-primary/30 animate-ping opacity-20" />
-             <div className="text-center">
-               <p className="text-gray-400 uppercase text-sm font-bold mb-2">Players</p>
-               <p className="text-4xl font-mono font-bold">{game.players.length}</p>
-             </div>
+          <div className="space-y-4 text-left">
+            {assignments.map((a: any, i: number) => (
+              <GlassCard key={i} className="p-4 border-primary/20">
+                <p className="text-sm text-gray-400">Question {i + 1}</p>
+                <p className="text-lg font-bold">
+                  <span className="text-primary">{a.asker}</span> asks <span className="text-blue-400">{a.target}</span>
+                </p>
+              </GlassCard>
+            ))}
           </div>
 
           <div className="space-y-4">
             <p className="text-gray-400 text-sm">
-              Each player asks another player a question. Two rounds of questions.
+              Each player asks their target a question. Two rounds of questions.
             </p>
             
             <NeonButton 
               className="w-full h-16 text-lg"
               onClick={() => {
-                 // Pass necessary data to voting screen via local storage updates or just rely on session
                  setLocation("/game/vote");
               }}
             >

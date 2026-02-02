@@ -24,12 +24,27 @@ export function useGameLogic() {
     const items = CATEGORIES[category];
     const secret = items[Math.floor(Math.random() * items.length)];
     const spy = Math.floor(Math.random() * playerList.length);
-    
+
+    // Assign turns: Who asks whom (Who asks whom)
+    const assignments = playerList.map((player, index) => {
+      const targetIndex = (index + 1) % playerList.length;
+      return { asker: player, target: playerList[targetIndex] };
+    });
+
     setPlayers(playerList);
     setSelectedCategory(category);
     setSecretWord(secret);
     setSpyIndex(spy);
     setCurrentTurn(0);
+
+    localStorage.setItem("spygame_current_session", JSON.stringify({
+      players: playerList,
+      category,
+      secretWord: secret,
+      spyIndex: spy,
+      assignments,
+      startedAt: Date.now()
+    }));
   };
 
   const nextTurn = () => {

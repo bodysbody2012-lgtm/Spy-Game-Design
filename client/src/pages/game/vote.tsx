@@ -39,35 +39,59 @@ export default function GameVote() {
     setGameState({ ...parsed, spyIndex: 0 }); // Mocking spy as player 0 for visual flow if missing
   }, []);
 
+  const [opinionIdx, setOpinionIdx] = useState(0);
+  const [opinions, setOpinions] = useState<Record<number, number>>({});
+  const [showOpinionReveal, setShowOpinionReveal] = useState(true);
+
   const handleVoteReveal = () => {
-    if (selectedSuspect === null) return;
-    
-    // In a real local multiplayer, every player votes. 
-    // Here we simulate the group consensus vote.
-    
-    // Pass the result to the result screen
-    localStorage.setItem("spygame_vote_result", JSON.stringify({
-      votedIndex: selectedSuspect,
-      // actual spy index would be from real state
-    }));
-    
-    setLocation("/game/result");
+    if (opinionIdx < gameState.players.length) {
+      if (selectedSuspect === null) return;
+      setOpinions(prev => ({ ...prev, [opinionIdx]: selectedSuspect }));
+      setSelectedSuspect(null);
+      
+      if (opinionIdx + 1 < gameState.players.length) {
+        setOpinionIdx(prev => prev + 1);
+        setShowOpinionReveal(true);
+      } else {
+        // Final vote tally or just consensus
+        localStorage.setItem("spygame_vote_result", JSON.stringify({
+          votedIndex: selectedSuspect, // Use last vote or logic
+          allVotes: { ...opinions, [opinionIdx]: selectedSuspect }
+        }));
+        setLocation("/game/result");
+      }
+      return;
+    }
   };
 
   if (!gameState) return null;
+
+  if (showOpinionReveal && opinionIdx < gameState.players.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-black">
+        <div className="text-center space-y-8">
+          <h2 className="text-gray-400 uppercase tracking-widest font-bold">Pass the device to</h2>
+          <h1 className="text-4xl md:text-6xl font-black text-white neon-text">{gameState.players[opinionIdx]}</h1>
+          <NeonButton onClick={() => setShowOpinionReveal(false)}>Give Opinion</NeonButton>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center">
       <PageTransition>
         <div className="max-w-md w-full space-y-8">
-          <Header title="VOTING TIME" subtitle="Who is the Spy?" />
+          <Header title={`${gameState.players[opinionIdx]}'s Turn`} subtitle="Who do you think is the spy?" />
           
           <div className="grid grid-cols-1 gap-3">
             {gameState.players.map((player: string, idx: number) => (
               <button
                 key={idx}
+                disabled={idx === opinionIdx}
                 onClick={() => setSelectedSuspect(idx)}
                 className={`p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group ${
+                  idx === opinionIdx ? "opacity-50 cursor-not-allowed" :
                   selectedSuspect === idx 
                     ? "bg-red-900/40 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]" 
                     : "bg-white/5 border-white/10 hover:bg-white/10"
@@ -81,26 +105,18 @@ export default function GameVote() {
                     {player}
                   </span>
                 </div>
-                
                 {selectedSuspect === idx && <Target className="h-6 w-6 text-red-500 animate-pulse" />}
               </button>
             ))}
           </div>
 
-          <div className="pt-4">
-             <div className="flex items-center gap-3 mb-4 p-4 bg-yellow-900/20 border border-yellow-700/30 rounded-lg text-yellow-200 text-sm">
-                <AlertTriangle className="h-5 w-5 shrink-0" />
-                <p>If the Spy is caught, they get one chance to guess the secret word to steal the win!</p>
-             </div>
-
-             <NeonButton 
-               className="w-full bg-red-600 hover:bg-red-700 shadow-red-500/20"
-               disabled={selectedSuspect === null}
-               onClick={handleVoteReveal}
-             >
-               Confirm Vote
-             </NeonButton>
-          </div>
+          <NeonButton 
+            className="w-full bg-red-600"
+            disabled={selectedSuspect === null}
+            onClick={handleVoteReveal}
+          >
+            Submit Opinion
+          </NeonButton>
         </div>
       </PageTransition>
     </div>

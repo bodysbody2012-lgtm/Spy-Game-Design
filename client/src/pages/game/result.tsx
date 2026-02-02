@@ -9,18 +9,13 @@ export default function GameResult() {
   const [gameState, setGameState] = useState<any>(null);
   const [voteResult, setVoteResult] = useState<any>(null);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [guessConfirmed, setGuessConfirmed] = useState(false);
 
   useEffect(() => {
-    // In a real app, pull these from robust state management
     const session = localStorage.getItem("spygame_current_session");
     const vote = localStorage.getItem("spygame_vote_result");
-    
-    // Mocking state reconstruction for demo continuity
     if (session && vote) {
-      const parsedSession = JSON.parse(session);
-      // We are mocking spyIndex here as 0 for the demo flow since it wasn't persisted in this stateless flow
-      // In real code, ensure spyIndex is passed through every step
-      setGameState({ ...parsedSession, spyIndex: 0, secretWord: CATEGORIES[parsedSession.category as keyof typeof CATEGORIES][0] });
+      setGameState(JSON.parse(session));
       setVoteResult(JSON.parse(vote));
     }
   }, []);
@@ -51,19 +46,16 @@ export default function GameResult() {
               </h3>
               <p className="text-gray-300">
                 {wasSpyCaught 
-                  ? "Citizens identified the traitor." 
-                  : "The spy fooled everyone."}
+                  ? "Citizens identified the traitor. Now the Spy must guess the word!" 
+                  : "The spy fooled everyone and wins!"}
               </p>
             </div>
 
             <NeonButton 
               className="w-full"
               onClick={() => {
-                if (wasSpyCaught) {
-                  setView('spy-guess');
-                } else {
-                  setView('final');
-                }
+                // Spy ALWAYS guesses now
+                setView('spy-guess');
               }}
             >
               Continue
@@ -74,15 +66,15 @@ export default function GameResult() {
     );
   }
 
-  // 2. Spy Guess Screen (Only if caught)
-  if (view === 'spy-guess') {
+  // 2. Spy Guess Screen
+  if (view === 'spy-guess' && !guessConfirmed) {
     const words = CATEGORIES[gameState.category as keyof typeof CATEGORIES];
     
     return (
-      <div className="min-h-screen p-6 bg-black">
+      <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
         <PageTransition>
-           <div className="max-w-2xl mx-auto space-y-6">
-             <Header title="LAST CHANCE" subtitle="Spy, guess the location to win!" />
+           <div className="max-w-2xl mx-auto space-y-6 text-center">
+             <Header title="SPY'S TURN" subtitle={`${spyName}, guess the secret word!`} />
              
              <div className="grid grid-cols-2 gap-3">
                {words.map((word: string) => (
@@ -101,11 +93,11 @@ export default function GameResult() {
              </div>
 
              <NeonButton 
-               className="w-full mt-8"
+               className="w-full mt-8 h-16 text-xl"
                disabled={!selectedWord}
-               onClick={() => setView('final')}
+               onClick={() => setGuessConfirmed(true)}
              >
-               Make Guess
+               Confirm Guess
              </NeonButton>
            </div>
         </PageTransition>
@@ -113,10 +105,9 @@ export default function GameResult() {
     );
   }
 
-  // 3. Final Result
+  // Final Reveal Logic
   const spyGuessedRight = selectedWord === gameState.secretWord;
-  // Logic: Spy wins if NOT caught OR if caught but guessed right
-  const spyWins = !wasSpyCaught || spyGuessedRight;
+  const spyWins = spyGuessedRight || !wasSpyCaught;
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center text-center">
@@ -135,26 +126,17 @@ export default function GameResult() {
                {spyWins ? "SPY WINS" : "CITIZENS WIN"}
              </h1>
              <p className="text-gray-400">
-               {wasSpyCaught && spyGuessedRight 
-                 ? `Spy correctly guessed "${gameState.secretWord}"!` 
-                 : wasSpyCaught 
-                   ? "Spy failed to guess the location."
-                   : "Spy was never found."}
+               The secret word was <span className="text-white font-bold">"{gameState.secretWord}"</span>.
+               <br />
+               {spyGuessedRight 
+                 ? `Spy guessed correctly!` 
+                 : `Spy guessed "${selectedWord}" and failed.`}
              </p>
            </div>
 
-           <div className="grid grid-cols-2 gap-4 pt-8">
-             <Link href="/game/setup?category=football">
-               <NeonButton variant="secondary" className="w-full">
-                 <RefreshCw className="mr-2 h-4 w-4" /> Play Again
-               </NeonButton>
-             </Link>
-             <Link href="/menu">
-               <NeonButton className="w-full">
-                 <Home className="mr-2 h-4 w-4" /> Main Menu
-               </NeonButton>
-             </Link>
-           </div>
+           <NeonButton onClick={() => setLocation("/menu")} className="w-full">
+             Back to Menu
+           </NeonButton>
         </div>
       </PageTransition>
     </div>
