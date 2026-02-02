@@ -5,12 +5,34 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 
+// Pages
+import Login from "@/pages/login";
+import Register from "@/pages/register";
+import AdminDashboard from "@/pages/admin-dashboard";
+import Menu from "@/pages/menu";
+import Leaderboard from "@/pages/leaderboard";
+import ModeSelect from "@/pages/game/mode-select";
+import GameSetup from "@/pages/game/setup";
+import GamePlay from "@/pages/game/play";
+import GameVote from "@/pages/game/vote";
+import GameResult from "@/pages/game/result";
+
 function Router() {
   return (
     <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
-      {/* Fallback to 404 */}
+      <Route path="/" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/menu" component={Menu} />
+      <Route path="/leaderboard" component={Leaderboard} />
+      
+      {/* Game Routes */}
+      <Route path="/game/mode" component={ModeSelect} />
+      <Route path="/game/setup" component={GameSetup} />
+      <Route path="/game/play" component={GamePlay} />
+      <Route path="/game/vote" component={GameVote} />
+      <Route path="/game/result" component={GameResult} />
+
       <Route component={NotFound} />
     </Switch>
   );
