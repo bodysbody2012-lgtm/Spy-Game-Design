@@ -69,10 +69,14 @@ export default function GameVote() {
   if (showOpinionReveal && opinionIdx < gameState.players.length) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-black">
-        <div className="text-center space-y-8">
-          <h2 className="text-gray-400 uppercase tracking-widest font-bold">Pass the device to</h2>
-          <h1 className="text-4xl md:text-6xl font-black text-white neon-text">{gameState.players[opinionIdx]}</h1>
-          <NeonButton onClick={() => setShowOpinionReveal(false)}>Give Opinion</NeonButton>
+        <div className="text-center space-y-8 w-full max-w-sm">
+          <div className="space-y-2">
+            <h2 className="text-gray-400 uppercase tracking-widest font-bold">Pass the device to</h2>
+            <h1 className="text-4xl md:text-5xl font-black text-white neon-text">{gameState.players[opinionIdx]}</h1>
+          </div>
+          <NeonButton onClick={() => setShowOpinionReveal(false)} className="w-full h-16 text-xl">
+            Give Opinion
+          </NeonButton>
         </div>
       </div>
     );

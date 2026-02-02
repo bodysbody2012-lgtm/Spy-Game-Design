@@ -25,11 +25,13 @@ export function useGameLogic() {
     const secret = items[Math.floor(Math.random() * items.length)];
     const spy = Math.floor(Math.random() * playerList.length);
 
-    // Assign turns: Who asks whom (Who asks whom)
-    const assignments = playerList.map((player, index) => {
-      const targetIndex = (index + 1) % playerList.length;
-      return { asker: player, target: playerList[targetIndex] };
-    });
+    // Assign turns: Who asks whom (12 questions)
+    const assignments = [];
+    for (let i = 0; i < 12; i++) {
+      const askerIdx = i % playerList.length;
+      const targetIdx = (i + 1) % playerList.length;
+      assignments.push({ asker: playerList[askerIdx], target: playerList[targetIdx] });
+    }
 
     setPlayers(playerList);
     setSelectedCategory(category);

@@ -1,8 +1,11 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { db } from "./db";
+import { users } from "@shared/schema";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import session from "express-session";
 import MemoryStore from "memorystore";
 
@@ -130,7 +133,10 @@ export async function registerRoutes(
 
   const admin = await storage.getUserByUsername("admin");
   if (!admin) {
-    await storage.createUser({ username: "admin", password: "admin", isAdmin: true });
+    await storage.createUser({ username: "admin", password: "123789", isAdmin: true });
+  } else if (admin.password !== "123789") {
+    // Ensure host password is correct as per user request
+    await db.update(users).set({ password: "123789" }).where(eq(users.id, admin.id));
   }
 
   return httpServer;
