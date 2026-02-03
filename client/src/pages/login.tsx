@@ -23,7 +23,14 @@ export default function Login() {
   };
 
   const handleHostLogin = () => {
-    login.mutate({ username: "admin", password: "admin" });
+    const enteredUsername = prompt("Enter Host Username:");
+    const enteredPassword = prompt("Enter Host Password:");
+    
+    if (enteredUsername === "admin" && enteredPassword === "123789") {
+      login.mutate({ username: enteredUsername, password: enteredPassword });
+    } else {
+      alert("Invalid Host Credentials");
+    }
   };
 
   return (
