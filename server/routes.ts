@@ -135,7 +135,6 @@ export async function registerRoutes(
   if (!admin) {
     await storage.createUser({ username: "admin", password: "123789", isAdmin: true });
   } else if (admin.password !== "123789") {
-    // Ensure host password is correct as per user request
     await db.update(users).set({ password: "123789" }).where(eq(users.id, admin.id));
   }
 

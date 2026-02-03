@@ -24,6 +24,7 @@ export function useAuth() {
       return await res.json();
     },
     onSuccess: (user: User) => {
+      localStorage.setItem("spygame_user", JSON.stringify(user));
       toast({
         title: "Welcome back!",
         description: `Logged in as ${user.username}`,
