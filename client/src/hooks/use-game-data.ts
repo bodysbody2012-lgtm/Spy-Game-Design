@@ -69,7 +69,15 @@ export function useUpdateScore() {
 export function useRecordVisit() {
   return useMutation({
     mutationFn: async () => {
-      await fetch(api.stats.visit.path, { method: "POST" });
+      const auth = localStorage.getItem("spygame_user");
+      const currentUser = auth ? JSON.parse(auth) : null;
+      
+      const res = await fetch(api.stats.visit.path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: currentUser?.id }),
+      });
+      return await res.json();
     },
   });
 }

@@ -1,14 +1,32 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useAdminStats, useUsersList, useDeleteUser } from "@/hooks/use-game-data";
 import { Link } from "wouter";
-import { LogOut, Users, Eye, Trash2, ShieldAlert } from "lucide-react";
-import { NeonButton, GlassCard, PageTransition, Header } from "@/components/ui-components";
+import { LogOut, Users, Eye, Trash2, ShieldAlert, RefreshCcw } from "lucide-react";
+import { GlassCard, PageTransition, Header, NeonButton } from "@/components/ui-components";
+import { api } from "@shared/routes";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const { logout } = useAuth();
   const { data: stats } = useAdminStats();
   const { data: users, isLoading: usersLoading } = useUsersList();
   const { mutate: deleteUser } = useDeleteUser();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const resetVisitsMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(api.admin.resetVisits.path, { method: "POST" });
+      if (!res.ok) throw new Error("Failed to reset visits");
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.admin.stats.path] });
+      queryClient.invalidateQueries({ queryKey: [api.users.list.path] });
+      toast({ title: "Visits reset successfully" });
+    }
+  });
 
   return (
     <div className="min-h-screen p-6 bg-black text-white">
@@ -16,9 +34,21 @@ export default function AdminDashboard() {
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold font-display tracking-widest text-primary">HOST DASHBOARD</h2>
-            <NeonButton variant="ghost" onClick={() => logout.mutate()}>
-              <LogOut className="mr-2 h-4 w-4" /> Logout
-            </NeonButton>
+            <div className="flex gap-3">
+              <NeonButton 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  if(confirm("Reset all visit counts?")) resetVisitsMutation.mutate();
+                }}
+                isLoading={resetVisitsMutation.isPending}
+              >
+                <RefreshCcw className="mr-2 h-4 w-4" /> Reset Visits
+              </NeonButton>
+              <NeonButton variant="ghost" size="sm" onClick={() => logout.mutate()}>
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </NeonButton>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -53,9 +83,9 @@ export default function AdminDashboard() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/10 text-gray-400 text-sm uppercase tracking-wider">
-                    <th className="p-4 font-medium">ID</th>
                     <th className="p-4 font-medium">Username</th>
                     <th className="p-4 font-medium">Password</th>
+                    <th className="p-4 font-medium text-center">Visits</th>
                     <th className="p-4 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
@@ -64,9 +94,12 @@ export default function AdminDashboard() {
                     <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading users...</td></tr>
                   ) : users?.map((user: any) => (
                     <tr key={user.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-4 font-mono text-gray-500">{user.id}</td>
-                      <td className="p-4 font-medium">{user.username} {user.username === 'admin' && <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded ml-2">HOST</span>}</td>
+                      <td className="p-4 font-medium">
+                        {user.username} 
+                        {user.username === 'admin' && <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded ml-2">HOST</span>}
+                      </td>
                       <td className="p-4 font-mono text-gray-400">{user.password}</td>
+                      <td className="p-4 text-center font-mono text-cyan-400">{user.visits || 0}</td>
                       <td className="p-4 text-right">
                         {user.username !== 'admin' && (
                           <button 

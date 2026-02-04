@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   score: integer("score").default(0),
   gamesPlayed: integer("games_played").default(0),
   tokenVersion: integer("token_version").default(0),
+  visits: integer("visits").default(0),
 });
 
 export const siteStats = pgTable("site_stats", {
@@ -22,7 +23,8 @@ export const insertUserSchema = createInsertSchema(users).omit({
   isAdmin: true, 
   score: true, 
   gamesPlayed: true,
-  tokenVersion: true
+  tokenVersion: true,
+  visits: true,
 });
 
 export type User = typeof users.$inferSelect;

@@ -89,8 +89,7 @@ export async function registerRoutes(
   });
 
   app.get(api.users.list.path, requireAuth, async (req, res) => {
-    const usersList = await storage.getAllUsers();
-    // Admin sees all passwords, users see only their own record with password (for private leaderboard concept)
+    const usersList = await storage.getLeaderboard();
     const result = usersList.map(u => {
       if (req.session.isAdmin || req.session.userId === u.id) {
         return u;
@@ -126,8 +125,14 @@ export async function registerRoutes(
     res.json({ message: "User forced logout" });
   });
 
+  app.post(api.admin.resetVisits.path, requireAdmin, async (req, res) => {
+    await storage.resetVisits();
+    res.json({ message: "Visits reset successfully" });
+  });
+
   app.post(api.stats.visit.path, async (req, res) => {
-    const stats = await storage.incrementVisits();
+    const { userId } = req.body || {};
+    const stats = await storage.incrementVisits(userId);
     res.json(stats);
   });
 

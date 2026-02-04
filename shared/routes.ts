@@ -89,11 +89,21 @@ export const api = {
         200: z.object({ message: z.string() }),
       },
     },
+    resetVisits: {
+      method: "POST" as const,
+      path: "/api/admin/reset-visits",
+      responses: {
+        200: z.object({ message: z.string() }),
+      },
+    },
   },
   stats: {
     visit: {
       method: "POST" as const,
       path: "/api/stats/visit",
+      input: z.object({
+        userId: z.number().optional(),
+      }).optional(),
       responses: {
         200: z.object({ visits: z.number() }),
       },

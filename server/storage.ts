@@ -1,19 +1,21 @@
 import { db } from "./db";
 import { users, siteStats, type User, type InsertUser } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser & { isAdmin?: boolean }): Promise<User>;
   getAllUsers(): Promise<User[]>;
+  getLeaderboard(): Promise<User[]>;
   deleteUser(id: number): Promise<void>;
   updateUserScore(id: number, points: number): Promise<User>;
   incrementTokenVersion(id: number): Promise<void>;
   
   // Stats
   getStats(): Promise<{ visits: number }>;
-  incrementVisits(): Promise<{ visits: number }>;
+  incrementVisits(userId?: number): Promise<{ visits: number }>;
+  resetVisits(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -33,13 +35,18 @@ export class DatabaseStorage implements IStorage {
       isAdmin: insertUser.isAdmin ?? false,
       score: 0,
       gamesPlayed: 0,
-      tokenVersion: 0
+      tokenVersion: 0,
+      visits: 0
     }).returning();
     return user;
   }
 
   async getAllUsers(): Promise<User[]> {
     return await db.select().from(users).orderBy(users.username);
+  }
+
+  async getLeaderboard(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.score));
   }
 
   async deleteUser(id: number): Promise<void> {
@@ -72,7 +79,13 @@ export class DatabaseStorage implements IStorage {
     return { visits: stats.visits ?? 0 };
   }
 
-  async incrementVisits(): Promise<{ visits: number }> {
+  async incrementVisits(userId?: number): Promise<{ visits: number }> {
+    if (userId) {
+      await db.update(users)
+        .set({ visits: sql`${users.visits} + 1` })
+        .where(eq(users.id, userId));
+    }
+
     const [stats] = await db.select().from(siteStats);
     if (!stats) {
       const [newStats] = await db.insert(siteStats).values({ visits: 1 }).returning();
@@ -83,6 +96,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(siteStats.id, stats.id))
       .returning();
     return { visits: updated.visits ?? 0 };
+  }
+
+  async resetVisits(): Promise<void> {
+    await db.update(siteStats).set({ visits: 0 });
+    await db.update(users).set({ visits: 0 });
   }
 }
 

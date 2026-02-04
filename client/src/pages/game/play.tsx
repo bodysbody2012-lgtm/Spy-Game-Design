@@ -2,139 +2,162 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useGameLogic, type CategoryKey } from "@/hooks/use-game-logic";
 import { NeonButton, GlassCard, PageTransition, Header } from "@/components/ui-components";
-import { Eye, EyeOff, User, Fingerprint, Crown, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, User, Fingerprint, Crown, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function GamePlay() {
   const [location, setLocation] = useLocation();
   const game = useGameLogic();
-  
-  const [showRole, setShowRole] = useState(false);
-  const [sessionLoaded, setSessionLoaded] = useState(false);
+  const [revealed, setRevealed] = useState<boolean[]>([]);
+  const [allRevealed, setAllRevealed] = useState(false);
+  const [questionIdx, setQuestionIdx] = useState(0);
 
-  // Initialize game from local storage session
   useEffect(() => {
-    const sessionData = localStorage.getItem("spygame_current_session");
-    if (!sessionData) {
-      setLocation("/game/setup");
-      return;
+    if (game.players.length > 0 && revealed.length === 0) {
+      setRevealed(new Array(game.players.length).fill(false));
     }
-    
-    const { players, category } = JSON.parse(sessionData);
-    game.startGame(players, category);
-    setSessionLoaded(true);
-  }, []);
+  }, [game.players]);
 
-  if (!sessionLoaded || !game.isGameActive) return null;
+  if (game.players.length === 0) {
+    setLocation("/game/setup");
+    return null;
+  }
 
-  const currentPlayer = game.players[game.currentTurn];
-  const isSpy = game.currentTurn === game.spyIndex;
+  const handleNext = () => {
+    if (game.currentTurn < game.players.length - 1) {
+      game.nextTurn();
+    } else {
+      setAllRevealed(true);
+      game.nextTurn();
+    }
+  };
 
-  // Render different screens based on game state
-  
-  // 1. Pass phone screen
-  if (!showRole && game.currentTurn < game.players.length) {
+  const assignments = JSON.parse(localStorage.getItem("spygame_current_session") || "{}").assignments || [];
+
+  // 3. Discussion Phase
+  if (allRevealed) {
+    const currentAssignment = assignments[questionIdx];
+
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-black">
+      <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
         <PageTransition>
-          <div className="text-center space-y-8">
-            <div className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
-              <User className="h-12 w-12 text-primary" />
-            </div>
-            
-            <div className="space-y-2">
-              <h2 className="text-gray-400 font-display tracking-widest uppercase">Pass the device to</h2>
-              <h1 className="text-4xl md:text-6xl font-black text-white neon-text">{currentPlayer}</h1>
+          <div className="text-center space-y-8 max-w-md w-full">
+            <Header title={`QUESTION ${questionIdx + 1} / 12`} subtitle="Follow the order" />
+
+            <div className="space-y-6">
+              {currentAssignment ? (
+                <GlassCard className="p-8 border-primary/30 bg-primary/5 shadow-[0_0_20px_rgba(var(--primary),0.1)]">
+                  <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Turn Order</p>
+                  <div className="flex flex-col items-center gap-4">
+                    <span className="text-3xl font-black text-primary neon-text">{currentAssignment.asker}</span>
+                    <span className="text-gray-500 font-bold italic">asks</span>
+                    <span className="text-3xl font-black text-blue-400 neon-text">{currentAssignment.target}</span>
+                  </div>
+                </GlassCard>
+              ) : (
+                <GlassCard className="p-8 border-green-500/30 bg-green-500/5">
+                  <p className="text-xl font-bold text-green-400">All questions completed!</p>
+                </GlassCard>
+              )}
             </div>
 
-            <NeonButton 
-              onClick={() => setShowRole(true)}
-              className="w-full max-w-xs mx-auto text-lg h-16"
-            >
-              <Fingerprint className="mr-2 h-6 w-6" />
-              Reveal Identity
-            </NeonButton>
+            <div className="grid grid-cols-1 gap-4">
+              {questionIdx < 11 ? (
+                <NeonButton 
+                  className="w-full h-16 text-xl"
+                  onClick={() => setQuestionIdx(prev => prev + 1)}
+                >
+                  Next Question <ArrowRight className="ml-2 h-6 w-6" />
+                </NeonButton>
+              ) : (
+                <NeonButton 
+                  className="w-full h-16 text-xl bg-red-600"
+                  onClick={() => setLocation("/game/vote")}
+                >
+                  Proceed to Vote
+                </NeonButton>
+              )}
+              
+              <NeonButton 
+                variant="ghost"
+                className="w-full text-gray-500 hover:text-white"
+                onClick={() => setLocation("/game/vote")}
+              >
+                Skip to Voting
+              </NeonButton>
+            </div>
           </div>
         </PageTransition>
       </div>
     );
   }
 
-  // 2. Role Reveal Screen
-  if (showRole && game.currentTurn < game.players.length) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center p-6 transition-colors duration-500 ${isSpy ? 'bg-red-950/30' : 'bg-blue-950/30'}`}>
-        <PageTransition>
-          <GlassCard className="max-w-md mx-auto text-center py-12 px-8 border-2 border-white/20">
-            <div className="mb-8">
-              {isSpy ? (
-                <EyeOff className="h-20 w-20 mx-auto text-red-500 mb-4" />
-              ) : (
-                <Crown className="h-20 w-20 mx-auto text-blue-500 mb-4" />
-              )}
-              
-              <h2 className="text-xl text-gray-400 uppercase tracking-widest font-bold mb-2">
-                {isSpy ? "You are the" : "Your secret word is"}
-              </h2>
-              
-              <h1 className={`text-4xl md:text-5xl font-black uppercase ${isSpy ? 'text-red-500' : 'text-blue-400 neon-text'}`}>
-                {isSpy ? "SPY" : game.secretWord}
-              </h1>
-              
-              {isSpy && (
-                <p className="mt-4 text-red-300 font-medium">Try to blend in and guess the word!</p>
-              )}
-            </div>
-
-            <NeonButton 
-              className={`w-full ${isSpy ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20' : ''}`}
-              onClick={() => {
-                setShowRole(false);
-                game.nextTurn();
-              }}
-            >
-              <CheckCircle2 className="mr-2 h-5 w-5" />
-              Understand & Pass
-            </NeonButton>
-          </GlassCard>
-        </PageTransition>
-      </div>
-    );
-  }
-
-  // 3. All players revealed -> Discussion Phase
-  const assignments = JSON.parse(localStorage.getItem("spygame_current_session") || "{}").assignments || [];
+  // 1 & 2. Role Reveal Phase
+  const currentPlayer = game.players[game.currentTurn];
+  const isRevealed = revealed[game.currentTurn];
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
       <PageTransition>
         <div className="text-center space-y-8 max-w-md w-full">
-          <Header title="DISCUSS" subtitle="Follow the question order" />
+          <Header 
+            title={`PLAYER ${game.currentTurn + 1}`} 
+            subtitle={`Pass the phone to ${currentPlayer?.name || 'next player'}`} 
+          />
 
-          <div className="space-y-4 text-left">
-            {assignments.map((a: any, i: number) => (
-              <GlassCard key={i} className="p-4 border-primary/20">
-                <p className="text-sm text-gray-400">Question {i + 1}</p>
-                <p className="text-lg font-bold">
-                  <span className="text-primary">{a.asker}</span> asks <span className="text-blue-400">{a.target}</span>
-                </p>
-              </GlassCard>
-            ))}
-          </div>
+          <GlassCard className={`p-10 transition-all duration-500 ${isRevealed ? 'border-primary shadow-[0_0_30px_rgba(var(--primary),0.2)]' : 'border-white/10'}`}>
+            <div className="flex flex-col items-center gap-6">
+              <div className="p-4 bg-white/5 rounded-full">
+                <Fingerprint className={`h-16 w-16 ${isRevealed ? 'text-primary' : 'text-gray-600'}`} />
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black tracking-tighter uppercase">{currentPlayer?.name}</h3>
+                <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">Identify your mission</p>
+              </div>
 
-          <div className="space-y-4">
-            <p className="text-gray-400 text-sm">
-              Each player asks their target a question. Two rounds of questions.
-            </p>
-            
+              {isRevealed ? (
+                <div className="mt-4 animate-in fade-in zoom-in duration-300">
+                  {currentPlayer?.isSpy ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center gap-2 text-red-500">
+                        <Crown className="h-6 w-6" />
+                        <span className="text-3xl font-black italic tracking-tighter">YOU ARE THE SPY</span>
+                      </div>
+                      <p className="text-gray-400 text-sm">Blend in. Don't let them find you.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-gray-400 text-sm uppercase tracking-widest">Your Secret Word</p>
+                      <span className="text-4xl font-black text-primary neon-text tracking-tighter uppercase block">
+                        {game.secretWord}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <NeonButton 
+                  variant="outline"
+                  className="mt-4 w-full h-14"
+                  onClick={() => {
+                    const newRevealed = [...revealed];
+                    newRevealed[game.currentTurn] = true;
+                    setRevealed(newRevealed);
+                  }}
+                >
+                  <Eye className="mr-2 h-5 w-5" /> Reveal Secret
+                </NeonButton>
+              )}
+            </div>
+          </GlassCard>
+
+          {isRevealed && (
             <NeonButton 
-              className="w-full h-16 text-lg"
-              onClick={() => {
-                 setLocation("/game/vote");
-              }}
+              className="w-full h-16 text-xl animate-in slide-in-from-bottom-4 duration-500"
+              onClick={handleNext}
             >
-              Start Voting
+              <CheckCircle2 className="mr-2 h-6 w-6" /> I've seen it
             </NeonButton>
-          </div>
+          )}
         </div>
       </PageTransition>
     </div>
