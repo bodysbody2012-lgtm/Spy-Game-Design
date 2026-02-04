@@ -26,13 +26,14 @@ export async function registerRoutes(
   app.use(
     session({
       secret: process.env.SESSION_SECRET || "spygame_secret",
-      resave: false,
-      saveUninitialized: false,
+      resave: true, // Changed to true for better session persistence across environments
+      saveUninitialized: true, // Changed to true
       store: new SessionStore({
         checkPeriod: 86400000,
       }),
       cookie: {
         secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       },
     })
@@ -51,7 +52,11 @@ export async function registerRoutes(
   };
 
   const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.session.userId || !req.session.isAdmin) {
+    if (!req.session.userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const user = await storage.getUser(req.session.userId);
+    if (!user || !user.isAdmin) {
       return res.status(403).json({ message: "Forbidden" });
     }
     next();
@@ -66,7 +71,12 @@ export async function registerRoutes(
     req.session.userId = user.id;
     req.session.tokenVersion = user.tokenVersion || 0;
     req.session.isAdmin = user.isAdmin || false;
-    res.json(user);
+    
+    // Explicitly save session
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ message: "Session error" });
+      res.json(user);
+    });
   });
 
   app.post(api.auth.register.path, async (req, res) => {
@@ -79,7 +89,11 @@ export async function registerRoutes(
     req.session.userId = user.id;
     req.session.tokenVersion = user.tokenVersion || 0;
     req.session.isAdmin = user.isAdmin || false;
-    res.status(201).json(user);
+    
+    req.session.save((err) => {
+      if (err) return res.status(500).json({ message: "Session error" });
+      res.status(201).json(user);
+    });
   });
 
   app.post(api.auth.logout.path, (req, res) => {
@@ -90,8 +104,10 @@ export async function registerRoutes(
 
   app.get(api.users.list.path, requireAuth, async (req, res) => {
     const usersList = await storage.getLeaderboard();
+    const currentUser = await storage.getUser(req.session.userId!);
+    
     const result = usersList.map(u => {
-      if (req.session.isAdmin || req.session.userId === u.id) {
+      if (currentUser?.isAdmin || req.session.userId === u.id) {
         return u;
       }
       const { password, ...rest } = u;
@@ -100,11 +116,8 @@ export async function registerRoutes(
     res.json(result);
   });
 
-  app.delete(api.users.delete.path, requireAuth, async (req, res) => {
+  app.delete(api.users.delete.path, requireAdmin, async (req, res) => {
     const targetId = Number(req.params.id);
-    if (!req.session.isAdmin && req.session.userId !== targetId) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
     await storage.deleteUser(targetId);
     res.json({ message: "User deleted" });
   });
@@ -136,11 +149,17 @@ export async function registerRoutes(
     res.json(stats);
   });
 
+  // Ensure admin user exists with correct password
   const admin = await storage.getUserByUsername("admin");
   if (!admin) {
     await storage.createUser({ username: "admin", password: "123789", isAdmin: true });
-  } else if (admin.password !== "123789") {
-    await db.update(users).set({ password: "123789" }).where(eq(users.id, admin.id));
+  } else {
+    // Force sync admin properties
+    if (admin.password !== "123789" || !admin.isAdmin) {
+      await db.update(users)
+        .set({ password: "123789", isAdmin: true })
+        .where(eq(users.id, admin.id));
+    }
   }
 
   return httpServer;
