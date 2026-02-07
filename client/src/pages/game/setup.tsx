@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useGameLogic, type CategoryKey } from "@/hooks/use-game-logic";
+import { useGameLogic, type CategoryKey, CATEGORIES } from "@/hooks/use-game-logic";
 import { ArrowLeft, UserPlus, Save, Play, X } from "lucide-react";
 import { NeonButton, GlassCard, InputField, PageTransition, Header } from "@/components/ui-components";
 import { useToast } from "@/hooks/use-toast";
@@ -52,13 +52,32 @@ export default function GameSetup() {
       toast({ title: "Need at least 3 players", variant: "destructive" });
       return;
     }
-    // We pass state via history/router state or just params. 
-    // For simplicity with Wouter, we'll use local storage to pass the configured game state to the play route
+    
+    // Use the logic from hook instead of manual storage setting
+    // to ensure all parameters (spy, words) are generated correctly
+    // and matching the play page's expectations.
+    
+    const items = CATEGORIES[category];
+    const secret = items[Math.floor(Math.random() * items.length)];
+    const spy = Math.floor(Math.random() * playerNames.length);
+
+    const assignments = [];
+    for (let i = 0; i < 12; i++) {
+      const askerIdx = i % playerNames.length;
+      let targetIdx = (i + 1) % playerNames.length;
+      if (askerIdx === targetIdx) targetIdx = (i + 2) % playerNames.length;
+      assignments.push({ asker: playerNames[askerIdx], target: playerNames[targetIdx] });
+    }
+
     const gameState = {
       players: playerNames,
-      category: category,
-      startTime: Date.now()
+      category,
+      secretWord: secret,
+      spyIndex: spy,
+      assignments,
+      startedAt: Date.now()
     };
+    
     localStorage.setItem("spygame_current_session", JSON.stringify(gameState));
     setLocation("/game/play");
   };

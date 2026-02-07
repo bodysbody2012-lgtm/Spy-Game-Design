@@ -18,8 +18,27 @@ export default function GamePlay() {
   }, [game.players]);
 
   if (game.players.length === 0) {
-    setLocation("/game/setup");
-    return null;
+    const saved = localStorage.getItem("spygame_current_session");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.players && parsed.players.length > 0) {
+          // Initialize logic with saved data if state is empty
+          game.setPlayers(parsed.players);
+          game.setSelectedCategory(parsed.category);
+          // We don't need to return, just continue
+        } else {
+          setLocation("/game/mode");
+          return null;
+        }
+      } catch (e) {
+        setLocation("/game/mode");
+        return null;
+      }
+    } else {
+      setLocation("/game/mode");
+      return null;
+    }
   }
 
   const handleNext = () => {

@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { useAdminStats, useUsersList, useDeleteUser } from "@/hooks/use-game-data";
 import { Link } from "wouter";
-import { LogOut, Users, Eye, Trash2, ShieldAlert, RefreshCcw } from "lucide-react";
+import { LogOut, Users, Eye, Trash2, ShieldAlert, RefreshCcw, UserMinus } from "lucide-react";
 import { GlassCard, PageTransition, Header, NeonButton } from "@/components/ui-components";
 import { api } from "@shared/routes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -92,26 +92,23 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-white/5">
                   {usersLoading ? (
                     <tr><td colSpan={4} className="p-8 text-center text-gray-500">Loading users...</td></tr>
-                  ) : users?.map((user: any) => (
+                  ) : users?.filter((u: any) => u.username !== 'admin').map((user: any) => (
                     <tr key={user.id} className="hover:bg-white/5 transition-colors">
                       <td className="p-4 font-medium">
                         {user.username} 
-                        {user.username === 'admin' && <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded ml-2">HOST</span>}
                       </td>
                       <td className="p-4 font-mono text-gray-400">{user.password}</td>
                       <td className="p-4 text-center font-mono text-cyan-400">{user.visits || 0}</td>
                       <td className="p-4 text-right">
-                        {user.username !== 'admin' && (
-                          <button 
-                            onClick={() => {
-                              if(confirm(`Delete user ${user.username}?`)) deleteUser(user.id);
-                            }}
-                            className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                            title="Delete User"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
+                        <button 
+                          onClick={() => {
+                            if(confirm(`Delete user ${user.username}?`)) deleteUser(user.id);
+                          }}
+                          className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          title="Delete User"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
