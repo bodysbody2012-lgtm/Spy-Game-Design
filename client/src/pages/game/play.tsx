@@ -111,16 +111,17 @@ export default function GamePlay() {
   }
 
   // 1 & 2. Role Reveal Phase
-  const currentPlayer = game.players[game.currentTurn];
+  const playerName = game.players[game.currentTurn];
   const isRevealed = revealed[game.currentTurn];
+  const isSpy = game.spyIndex === game.currentTurn;
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
       <PageTransition>
         <div className="text-center space-y-8 max-w-md w-full">
           <Header 
-            title={`PLAYER ${game.currentTurn + 1}`} 
-            subtitle={`Pass the phone to ${currentPlayer?.name || 'next player'}`} 
+            title={playerName || "NEXT PLAYER"} 
+            subtitle={`Pass the phone to ${playerName || 'next player'}`} 
           />
 
           <GlassCard className={`p-10 transition-all duration-500 ${isRevealed ? 'border-primary shadow-[0_0_30px_rgba(var(--primary),0.2)]' : 'border-white/10'}`}>
@@ -130,13 +131,13 @@ export default function GamePlay() {
               </div>
               
               <div className="space-y-2">
-                <h3 className="text-2xl font-black tracking-tighter uppercase">{currentPlayer?.name}</h3>
+                <h3 className="text-2xl font-black tracking-tighter uppercase">{playerName}</h3>
                 <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">Identify your mission</p>
               </div>
 
               {isRevealed ? (
                 <div className="mt-4 animate-in fade-in zoom-in duration-300">
-                  {currentPlayer?.isSpy ? (
+                  {isSpy ? (
                     <div className="space-y-2">
                       <div className="flex items-center justify-center gap-2 text-red-500">
                         <Crown className="h-6 w-6" />
@@ -155,7 +156,7 @@ export default function GamePlay() {
                 </div>
               ) : (
                 <NeonButton 
-                  variant="outline"
+                  variant="primary"
                   className="mt-4 w-full h-14"
                   onClick={() => {
                     const newRevealed = [...revealed];

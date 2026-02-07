@@ -36,8 +36,7 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-bold font-display tracking-widest text-primary">HOST DASHBOARD</h2>
             <div className="flex gap-3">
               <NeonButton 
-                variant="outline" 
-                size="sm"
+                variant="primary" 
                 onClick={() => {
                   if(confirm("Reset all visit counts?")) resetVisitsMutation.mutate();
                 }}
@@ -45,7 +44,7 @@ export default function AdminDashboard() {
               >
                 <RefreshCcw className="mr-2 h-4 w-4" /> Reset Visits
               </NeonButton>
-              <NeonButton variant="ghost" size="sm" onClick={() => logout.mutate()}>
+              <NeonButton variant="ghost" onClick={() => logout.mutate()}>
                 <LogOut className="mr-2 h-4 w-4" /> Logout
               </NeonButton>
             </div>
