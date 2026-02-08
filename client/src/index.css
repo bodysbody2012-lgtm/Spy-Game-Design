@@ -40,6 +40,17 @@
   --font-body: 'Exo 2', sans-serif;
 }
 
+/* Custom styles */
+.replit-auth-button, 
+[class*="replit"], 
+#replit-badge, 
+.replit-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 @layer base {
   * {
     @apply border-border;

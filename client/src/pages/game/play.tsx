@@ -138,19 +138,23 @@ export default function GamePlay() {
               {isRevealed ? (
                 <div className="mt-4 animate-in fade-in zoom-in duration-300">
                   {isSpy ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-center gap-2 text-red-500">
-                        <Crown className="h-6 w-6" />
-                        <span className="text-3xl font-black italic tracking-tighter">YOU ARE THE SPY</span>
+                    <div className="space-y-4">
+                      <div className="flex flex-col items-center justify-center gap-3">
+                        <div className="bg-red-500/20 p-4 rounded-full">
+                          <Crown className="h-12 w-12 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
+                        </div>
+                        <span className="text-4xl font-black italic tracking-tighter text-red-500 neon-text-red">YOU ARE THE SPY</span>
                       </div>
-                      <p className="text-gray-400 text-sm">Blend in. Don't let them find you.</p>
+                      <p className="text-gray-300 text-base font-medium">Blend in. Don't let them find you.</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <p className="text-gray-400 text-sm uppercase tracking-widest">Your Secret Word</p>
-                      <span className="text-4xl font-black text-primary neon-text tracking-tighter uppercase block">
-                        {game.secretWord}
-                      </span>
+                    <div className="space-y-4">
+                      <p className="text-gray-400 text-sm uppercase tracking-widest font-bold">Your Secret Word</p>
+                      <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.1)]">
+                        <span className="text-5xl font-black text-primary neon-text tracking-tighter uppercase block drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]">
+                          {game.secretWord}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>
