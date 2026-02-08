@@ -53,10 +53,6 @@ export default function GameSetup() {
       return;
     }
     
-    // Use the logic from hook instead of manual storage setting
-    // to ensure all parameters (spy, words) are generated correctly
-    // and matching the play page's expectations.
-    
     const items = CATEGORIES[category];
     const secret = items[Math.floor(Math.random() * items.length)];
     const spy = Math.floor(Math.random() * playerNames.length);
@@ -78,7 +74,9 @@ export default function GameSetup() {
       startedAt: Date.now()
     };
     
+    // Fix: Using a specific key to mark session as fully initialized
     localStorage.setItem("spygame_current_session", JSON.stringify(gameState));
+    localStorage.setItem("spygame_initialized", "true");
     setLocation("/game/play");
   };
 
