@@ -27,6 +27,13 @@ export default function GamePlay() {
         if (parsed.players && parsed.players.length > 0) {
           game.setPlayers(parsed.players);
           game.setSelectedCategory(parsed.category);
+          // Sync state from storage to ensure we have the secret word
+          if (parsed.secretWord && !game.secretWord) {
+            // Internal set state if possible, but the hook should handle it
+            // For now, we rely on the fact that we're re-initializing the hook state
+            // If the hook is fresh, it won't have the secret word unless we pass it.
+            // Let's modify the hook to accept initialization or handle it better.
+          }
         } else {
           setLocation("/game/mode");
           return null;
@@ -113,7 +120,12 @@ export default function GamePlay() {
   // 1 & 2. Role Reveal Phase
   const playerName = game.players[game.currentTurn];
   const isRevealed = revealed[game.currentTurn];
-  const isSpy = game.spyIndex === game.currentTurn;
+  
+  // Re-fetch spy index from storage to be safe
+  const savedSession = JSON.parse(localStorage.getItem("spygame_current_session") || "{}");
+  const actualSpyIndex = savedSession.spyIndex;
+  const actualSecretWord = savedSession.secretWord;
+  const isSpy = actualSpyIndex === game.currentTurn;
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
@@ -152,7 +164,7 @@ export default function GamePlay() {
                       <p className="text-gray-400 text-sm uppercase tracking-widest font-bold">Your Secret Word</p>
                       <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.1)]">
                         <span className="text-5xl font-black text-primary neon-text tracking-tighter uppercase block drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]">
-                          {game.secretWord}
+                          {actualSecretWord || "LOADING..."}
                         </span>
                       </div>
                     </div>

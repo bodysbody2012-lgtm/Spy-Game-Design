@@ -44,7 +44,17 @@ export function useGameLogic() {
   const [players, setPlayers] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
   const [spyIndex, setSpyIndex] = useState<number | null>(null);
-  const [secretWord, setSecretWord] = useState<string | null>(null);
+  const [secretWord, setSecretWord] = useState<string | null>(() => {
+    const saved = localStorage.getItem("spygame_current_session");
+    if (saved) {
+      try {
+        return JSON.parse(saved).secretWord || null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
   const [currentTurn, setCurrentTurn] = useState(0);
   
   const startGame = (playerList: string[], category: CategoryKey) => {
@@ -66,14 +76,16 @@ export function useGameLogic() {
     setSpyIndex(spy);
     setCurrentTurn(0);
 
-    localStorage.setItem("spygame_current_session", JSON.stringify({
+    const gameState = {
       players: playerList,
       category,
       secretWord: secret,
       spyIndex: spy,
       assignments,
       startedAt: Date.now()
-    }));
+    };
+
+    localStorage.setItem("spygame_current_session", JSON.stringify(gameState));
   };
 
   const nextTurn = () => {
