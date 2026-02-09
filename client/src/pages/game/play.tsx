@@ -163,8 +163,8 @@ export default function GamePlay() {
                     <div className="space-y-4">
                       <p className="text-gray-400 text-sm uppercase tracking-widest font-bold">Your Secret Word</p>
                       <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.1)]">
-                        <span className="text-5xl font-black text-primary neon-text tracking-tighter uppercase block drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]">
-                          {actualSecretWord || "LOADING..."}
+                        <span className="text-5xl font-black text-primary neon-text tracking-tighter block drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]">
+                          {actualSecretWord ? (actualSecretWord.charAt(0).toUpperCase() + actualSecretWord.slice(1).toLowerCase()) : "LOADING..."}
                         </span>
                       </div>
                     </div>
