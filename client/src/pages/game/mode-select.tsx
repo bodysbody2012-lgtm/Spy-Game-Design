@@ -35,7 +35,7 @@ export default function ModeSelect() {
 
           <Header title="SELECT MODE" subtitle="Choose your category" />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {(Object.keys(CATEGORIES) as CategoryKey[]).map((key) => {
               const config = CATEGORY_CONFIG[key];
               const Icon = config.icon;
@@ -44,19 +44,19 @@ export default function ModeSelect() {
                 <button
                   key={key}
                   onClick={() => handleSelect(key)}
-                  className="group relative overflow-hidden rounded-xl h-24 text-left transition-all hover:scale-105 active:scale-95"
+                  className="group relative overflow-hidden rounded-xl h-20 text-left transition-all hover:scale-105 active:scale-95"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${config.color} opacity-80 group-hover:opacity-100 transition-opacity`} />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                   
-                  <div className="relative z-10 p-4 flex flex-col justify-between h-full">
-                    <Icon className="h-6 w-6 text-white opacity-80 group-hover:opacity-100" />
-                    <span className="font-bold text-xs uppercase tracking-wider text-white">
+                  <div className="relative z-10 p-3 flex flex-row items-center gap-3 h-full">
+                    <Icon className="h-6 w-6 text-white opacity-80 group-hover:opacity-100 shrink-0" />
+                    <span className="font-bold text-[10px] leading-tight uppercase tracking-wider text-white">
                       {config.label}
                     </span>
                   </div>
                   
-                  <div className="absolute -right-2 -bottom-2 h-16 w-16 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-colors" />
+                  <div className="absolute -right-2 -bottom-2 h-12 w-12 bg-white/10 rounded-full blur-xl group-hover:bg-white/20 transition-colors" />
                 </button>
               );
             })}

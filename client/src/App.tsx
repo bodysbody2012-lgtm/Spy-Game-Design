@@ -17,10 +17,13 @@ import GamePlay from "@/pages/game/play";
 import GameVote from "@/pages/game/vote";
 import GameResult from "@/pages/game/result";
 
+import Welcome from "@/pages/welcome";
+
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Login} />
+      <Route path="/" component={Welcome} />
+      <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/menu" component={Menu} />

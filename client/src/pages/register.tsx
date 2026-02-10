@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import { NeonButton, GlassCard, InputField, PageTransition, Header } from "@/components/ui-components";
+import { queryClient } from "@/lib/queryClient";
 
 export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   
   const { register } = useAuth();
+  const [, setLocation] = useLocation();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    register.mutate({ username, password });
+    try {
+      const user = await register.mutateAsync({ username, password });
+      queryClient.setQueryData(["/api/user"], user);
+      setLocation("/menu");
+    } catch (error) {
+      // Error is handled by mutation
+    }
   };
 
   return (

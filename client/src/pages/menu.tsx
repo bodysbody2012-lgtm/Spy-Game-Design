@@ -14,6 +14,10 @@ export default function Menu() {
 
       <div className="w-full max-w-md relative z-10">
         <PageTransition>
+          <div className="text-center space-y-2 mb-8">
+            <h1 className="text-6xl font-black tracking-tighter text-white neon-text italic">SPYGAME 🕵️</h1>
+            <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-xs">The Ultimate Deception 🕶️</p>
+          </div>
           <Header title="MAIN MENU" subtitle="Select an operation" />
 
           <div className="space-y-4">

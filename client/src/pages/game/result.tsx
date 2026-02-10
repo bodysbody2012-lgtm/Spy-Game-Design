@@ -69,7 +69,13 @@ export default function GameResult() {
 
   // 2. Spy Guess Screen
   if (view === 'spy-guess' && !guessConfirmed) {
-    const words = CATEGORIES[gameState.category as keyof typeof CATEGORIES];
+    const allWords = CATEGORIES[gameState.category as keyof typeof CATEGORIES];
+    const secretWord = gameState.secretWord;
+    
+    // Select 10 words including the secret word
+    const otherWords = allWords.filter(w => w !== secretWord);
+    const shuffledOthers = [...otherWords].sort(() => 0.5 - Math.random());
+    const displayWords = [secretWord, ...shuffledOthers.slice(0, 9)].sort(() => 0.5 - Math.random());
     
     return (
       <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
@@ -78,7 +84,7 @@ export default function GameResult() {
              <Header title="SPY'S TURN" subtitle={`${spyName}, guess the secret word!`} />
              
              <div className="grid grid-cols-2 gap-3">
-               {words.map((word: string) => (
+               {displayWords.map((word: string) => (
                  <button
                    key={word}
                    onClick={() => setSelectedWord(word)}
