@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useGameLogic, type CategoryKey } from "@/hooks/use-game-logic";
 import { NeonButton, GlassCard, PageTransition, Header } from "@/components/ui-components";
-import { Eye, EyeOff, User, Fingerprint, Crown, CheckCircle2, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, User, Fingerprint, Crown, CheckCircle2, ArrowRight, Info } from "lucide-react";
 
 export default function GamePlay() {
   const [location, setLocation] = useLocation();
@@ -162,10 +162,20 @@ export default function GamePlay() {
                   ) : (
                     <div className="space-y-4">
                       <p className="text-gray-400 text-sm uppercase tracking-widest font-bold">Your Secret Word</p>
-                      <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.1)]">
+                      <div className="bg-primary/10 border border-primary/30 p-6 rounded-2xl shadow-[0_0_20px_rgba(var(--primary),0.1)] relative group">
                         <span className="text-5xl font-black text-primary neon-text tracking-tighter block drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]">
                           {actualSecretWord ? (actualSecretWord.charAt(0).toUpperCase() + actualSecretWord.slice(1).toLowerCase()) : "LOADING..."}
                         </span>
+                        
+                        <a 
+                          href={`https://www.google.com/search?q=${actualSecretWord}+meaning`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="absolute -top-3 -right-3 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-500 transition-colors"
+                          title="What is this?"
+                        >
+                          <Info className="h-5 w-5" />
+                        </a>
                       </div>
                     </div>
                   )}

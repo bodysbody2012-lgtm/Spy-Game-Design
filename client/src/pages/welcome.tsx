@@ -7,24 +7,19 @@ export default function Welcome() {
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
       <PageTransition>
         <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in duration-700">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative bg-black rounded-2xl p-2 border border-white/10 overflow-hidden">
-              <img 
-                src={introImg} 
-                alt="Spy Game Welcome" 
-                className="w-full h-auto rounded-xl filter contrast-125 brightness-110"
-              />
-            </div>
+          <div className="space-y-6 py-12">
+            <h2 className="text-xl font-bold text-primary/80 tracking-[0.3em] uppercase animate-pulse">
+              This game is developed by
+            </h2>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white neon-text uppercase italic drop-shadow-[0_0_15px_rgba(var(--primary),0.5)]">
+              Abdelwahab Ahmed
+            </h1>
           </div>
           
           <div className="space-y-4">
-            <h1 className="text-4xl font-black tracking-tighter text-white neon-text uppercase italic">
-              Welcome Agent
-            </h1>
-            <p className="text-gray-400 font-medium leading-relaxed">
-              Prepare for the ultimate mission of deception. <br/>
-              Can you find the spy before it's too late?
+            <p className="text-gray-400 font-medium leading-relaxed max-w-sm mx-auto">
+              The ultimate multiplayer social deduction experience. <br/>
+              Play with friends, find the spy, and win the game.
             </p>
           </div>
 
