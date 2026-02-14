@@ -70,7 +70,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 export function Header({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="text-center mb-8 space-y-2">
-      <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-primary to-accent neon-text">
+      <h1 className="text-4xl md:text-5xl font-black text-white">
         {title}
       </h1>
       {subtitle && <p className="text-gray-400 font-medium">{subtitle}</p>}
