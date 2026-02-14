@@ -61,7 +61,7 @@ export function InputField({ className, ...props }: React.InputHTMLAttributes<HT
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out w-full max-w-md mx-auto">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-200 ease-out w-full max-w-md mx-auto">
       {children}
     </div>
   );
