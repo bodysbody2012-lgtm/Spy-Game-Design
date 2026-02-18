@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { NeonButton, GlassCard, PageTransition, Header } from "@/components/ui-components";
 import { Trophy, Skull, RefreshCw, Home } from "lucide-react";
 import { CATEGORIES } from "@/hooks/use-game-logic";
+import { playSFX } from "@/components/audio-controller";
 
 export default function GameResult() {
   const [location, setLocation] = useLocation();
@@ -122,6 +123,12 @@ export default function GameResult() {
   // Final Reveal Logic
   const spyGuessedRight = selectedWord === gameState.secretWord;
   const spyWins = spyGuessedRight || !wasSpyCaught;
+
+  useEffect(() => {
+    if (guessConfirmed) {
+      playSFX(spyWins ? "lose" : "win");
+    }
+  }, [guessConfirmed, spyWins]);
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center text-center">

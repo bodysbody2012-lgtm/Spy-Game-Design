@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useGameLogic, type CategoryKey } from "@/hooks/use-game-logic";
 import { NeonButton, GlassCard, PageTransition, Header } from "@/components/ui-components";
 import { Eye, EyeOff, User, Fingerprint, Crown, CheckCircle2, ArrowRight, Info } from "lucide-react";
+import { playSFX } from "@/components/audio-controller";
 
 export default function GamePlay() {
   const [location, setLocation] = useLocation();
@@ -185,6 +186,7 @@ export default function GamePlay() {
                   variant="primary"
                   className="mt-4 w-full h-14"
                   onClick={() => {
+                    playSFX("click");
                     const newRevealed = [...revealed];
                     newRevealed[game.currentTurn] = true;
                     setRevealed(newRevealed);

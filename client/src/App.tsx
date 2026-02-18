@@ -18,6 +18,7 @@ import GameVote from "@/pages/game/vote";
 import GameResult from "@/pages/game/result";
 
 import Welcome from "@/pages/welcome";
+import { AudioController } from "@/components/audio-controller";
 
 function Router() {
   return (
@@ -46,6 +47,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <AudioController />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>
