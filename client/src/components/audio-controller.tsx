@@ -35,9 +35,8 @@ export function AudioController() {
     <div className="fixed bottom-6 right-6 z-50">
       <NeonButton
         variant="ghost"
-        size="icon"
         onClick={toggleMute}
-        className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-xl"
+        className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 shadow-xl p-0 flex items-center justify-center"
       >
         {isMuted ? <VolumeX className="h-6 w-6 text-gray-400" /> : <Volume2 className="h-6 w-6 text-primary animate-pulse" />}
       </NeonButton>
