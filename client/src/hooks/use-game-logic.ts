@@ -41,14 +41,51 @@ export const CATEGORIES = {
 export type CategoryKey = keyof typeof CATEGORIES;
 
 export function useGameLogic() {
-  const [players, setPlayers] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
-  const [spyIndex, setSpyIndex] = useState<number | null>(null);
   const [secretWord, setSecretWord] = useState<string | null>(() => {
     const saved = localStorage.getItem("spygame_current_session");
     if (saved) {
       try {
-        return JSON.parse(saved).secretWord || null;
+        const parsed = JSON.parse(saved);
+        if (parsed.secretWord) return parsed.secretWord;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+  
+  const [spyIndex, setSpyIndex] = useState<number | null>(() => {
+    const saved = localStorage.getItem("spygame_current_session");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed.spyIndex === 'number') return parsed.spyIndex;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const [players, setPlayers] = useState<string[]>(() => {
+    const saved = localStorage.getItem("spygame_current_session");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.players) return parsed.players;
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(() => {
+    const saved = localStorage.getItem("spygame_current_session");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.category) return parsed.category;
       } catch (e) {
         return null;
       }

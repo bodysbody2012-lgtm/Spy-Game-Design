@@ -7,7 +7,8 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import session from "express-session";
-import MemoryStore from "memorystore";
+import connectPgSimple from "connect-pg-simple";
+import { pool } from "./db";
 
 declare module "express-session" {
   interface SessionData {
@@ -21,20 +22,21 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  const SessionStore = MemoryStore(session);
+  const PostgresStore = connectPgSimple(session);
   
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || "spygame_secret",
-      resave: true, // Changed to true for better session persistence across environments
-      saveUninitialized: true, // Changed to true
-      store: new SessionStore({
-        checkPeriod: 86400000,
+      store: new PostgresStore({
+        pool: pool,
+        createTableIfMissing: true,
       }),
+      secret: process.env.SESSION_SECRET || "spygame_secret",
+      resave: false,
+      saveUninitialized: false,
       cookie: {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
       },
     })
   );

@@ -16,7 +16,7 @@ export default function GamePlay() {
     if (game.players.length > 0 && revealed.length === 0) {
       setRevealed(new Array(game.players.length).fill(false));
     }
-  }, [game.players]);
+  }, [game.players.length]); // Use length to avoid re-triggering if reference changes
 
   if (game.players.length === 0) {
     const initialized = localStorage.getItem("spygame_initialized");
@@ -28,13 +28,11 @@ export default function GamePlay() {
         if (parsed.players && parsed.players.length > 0) {
           game.setPlayers(parsed.players);
           game.setSelectedCategory(parsed.category);
-          // Sync state from storage to ensure we have the secret word
-          if (parsed.secretWord && !game.secretWord) {
-            // Internal set state if possible, but the hook should handle it
-            // For now, we rely on the fact that we're re-initializing the hook state
-            // If the hook is fresh, it won't have the secret word unless we pass it.
-            // Let's modify the hook to accept initialization or handle it better.
-          }
+          return (
+            <div className="min-h-screen p-6 bg-black flex items-center justify-center">
+              <div className="text-primary animate-pulse text-xl font-bold">RESTORING SESSION...</div>
+            </div>
+          );
         } else {
           setLocation("/game/mode");
           return null;
