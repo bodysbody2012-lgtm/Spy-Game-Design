@@ -59,11 +59,7 @@ export default function GamePlay() {
   // Pre-load components and logic for next phase
   useEffect(() => {
     if (allRevealed) {
-      // Small delay to ensure smooth transition
-      const timer = setTimeout(() => {
-        // Any pre-render logic here
-      }, 50);
-      return () => clearTimeout(timer);
+      // Immediate transition
     }
   }, [allRevealed]);
 
