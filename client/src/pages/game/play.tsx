@@ -56,6 +56,17 @@ export default function GamePlay() {
     }
   };
 
+  // Pre-load components and logic for next phase
+  useEffect(() => {
+    if (allRevealed) {
+      // Small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        // Any pre-render logic here
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [allRevealed]);
+
   const assignments = JSON.parse(localStorage.getItem("spygame_current_session") || "{}").assignments || [];
 
   // 3. Discussion Phase
@@ -125,6 +136,18 @@ export default function GamePlay() {
   const actualSpyIndex = savedSession.spyIndex;
   const actualSecretWord = savedSession.secretWord;
   const isSpy = actualSpyIndex === game.currentTurn;
+
+  // Memoize random words for spy guess to prevent re-renders
+  const [spyGuessWords, setSpyGuessWords] = useState<string[]>([]);
+  
+  useEffect(() => {
+    if (allRevealed && spyGuessWords.length === 0) {
+      const categoryWords = CATEGORIES[game.selectedCategory || "football"];
+      const others = categoryWords.filter(w => w !== game.secretWord);
+      const randomOthers = others.sort(() => 0.5 - Math.random()).slice(0, 9);
+      setSpyGuessWords([game.secretWord!, ...randomOthers].sort(() => 0.5 - Math.random()));
+    }
+  }, [allRevealed, game.selectedCategory, game.secretWord]);
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">

@@ -25,8 +25,8 @@ export default function Welcome() {
 
           <div className="pt-6">
             <Link href="/login">
-              <NeonButton className="w-full h-16 text-xl shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-all">
-                GET STARTED
+              <NeonButton className="w-full h-16 text-xl shadow-[0_0_20px_rgba(var(--primary),0.3)] hover:shadow-[0_0_40px_rgba(var(--primary),0.6)] transition-all bg-primary/20 border-primary/40 hover:bg-primary/30">
+                START MISSION
               </NeonButton>
             </Link>
           </div>
