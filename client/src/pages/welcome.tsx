@@ -6,7 +6,7 @@ export default function Welcome() {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
       <PageTransition>
-        <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in duration-700">
+        <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in duration-300">
           <div className="space-y-6 py-12">
             <h2 className="text-xl font-bold text-primary/80 tracking-[0.3em] uppercase animate-pulse">
               This game is developed by
