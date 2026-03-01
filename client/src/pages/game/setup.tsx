@@ -87,9 +87,8 @@ export default function GameSetup() {
 
   return (
     <div className="min-h-screen p-4 bg-black flex flex-col items-center">
-      <PageTransition>
-        <div className="w-full max-w-md space-y-6">
-          <Link href="/game/mode">
+      <div className="w-full max-w-md space-y-6">
+        <Link href="/game/mode">
             <button className="flex items-center text-gray-400 hover:text-white transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
               Change Mode
@@ -140,7 +139,7 @@ export default function GameSetup() {
             </div>
           </GlassCard>
         </div>
-      </PageTransition>
+      </div>
     </div>
   );
 }

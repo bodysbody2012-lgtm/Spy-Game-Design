@@ -71,9 +71,8 @@ export default function GamePlay() {
 
     return (
       <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
-        <PageTransition>
-          <div className="text-center space-y-8 max-w-md w-full">
-            <Header title={`QUESTION ${questionIdx + 1} / 12`} subtitle="Follow the order" />
+        <div className="text-center space-y-8 max-w-md w-full">
+          <Header title={`QUESTION ${questionIdx + 1} / 12`} subtitle="Follow the order" />
 
             <div className="space-y-6">
               {currentAssignment ? (
@@ -118,7 +117,6 @@ export default function GamePlay() {
               </NeonButton>
             </div>
           </div>
-        </PageTransition>
       </div>
     );
   }
@@ -147,7 +145,6 @@ export default function GamePlay() {
 
   return (
     <div className="min-h-screen p-6 bg-black flex flex-col items-center justify-center">
-      <PageTransition>
         <div className="text-center space-y-8 max-w-md w-full">
           <Header 
             title={playerName || "NEXT PLAYER"} 
@@ -224,7 +221,6 @@ export default function GamePlay() {
             </NeonButton>
           )}
         </div>
-      </PageTransition>
     </div>
   );
 }

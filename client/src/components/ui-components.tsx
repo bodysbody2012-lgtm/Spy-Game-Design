@@ -59,13 +59,7 @@ export function InputField({ className, ...props }: React.InputHTMLAttributes<HT
   );
 }
 
-export function PageTransition({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="w-full max-w-md mx-auto">
-      {children}
-    </div>
-  );
-}
+export const PageTransition = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 export function Header({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
