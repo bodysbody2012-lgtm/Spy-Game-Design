@@ -116,7 +116,7 @@ export default function GameSetup() {
                 <div className="text-center text-gray-500 py-8 italic">No players added yet</div>
               )}
               {playerNames.map((name, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-white/5 p-3 rounded-xl animate-in fade-in slide-in-from-left-2">
+                <div key={idx} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
                   <span className="font-bold text-gray-200">{name}</span>
                   <button 
                     onClick={() => removePlayer(idx)}

@@ -166,7 +166,7 @@ export default function GamePlay() {
               </div>
 
               {isRevealed ? (
-                <div className="mt-4 animate-in fade-in zoom-in duration-300">
+                <div className="mt-4">
                   {isSpy ? (
                     <div className="space-y-4">
                       <div className="flex flex-col items-center justify-center gap-3">
@@ -217,7 +217,7 @@ export default function GamePlay() {
 
           {isRevealed && (
             <NeonButton 
-              className="w-full h-16 text-xl animate-in slide-in-from-bottom-4 duration-500"
+              className="w-full h-16 text-xl"
               onClick={handleNext}
             >
               <CheckCircle2 className="mr-2 h-6 w-6" /> I've seen it
