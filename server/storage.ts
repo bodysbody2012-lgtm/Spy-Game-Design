@@ -1,6 +1,6 @@
 import { db } from "./db";
-import { users, siteStats, type User, type InsertUser } from "@shared/schema";
-import { eq, sql, desc } from "drizzle-orm";
+import { users, siteStats, chatMessages, type User, type InsertUser, type ChatMessage } from "@shared/schema";
+import { eq, sql, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -16,6 +16,11 @@ export interface IStorage {
   getStats(): Promise<{ visits: number }>;
   incrementVisits(userId?: number): Promise<{ visits: number }>;
   resetVisits(): Promise<void>;
+
+  // Chat
+  getChatMessages(limit?: number): Promise<ChatMessage[]>;
+  addChatMessage(msg: { senderAlias: string; deviceId: string; content?: string; type: string; filePath?: string }): Promise<ChatMessage>;
+  clearChat(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -101,6 +106,19 @@ export class DatabaseStorage implements IStorage {
   async resetVisits(): Promise<void> {
     await db.update(siteStats).set({ visits: 0 });
     await db.update(users).set({ visits: 0 });
+  }
+
+  async getChatMessages(limit = 100): Promise<ChatMessage[]> {
+    return await db.select().from(chatMessages).orderBy(asc(chatMessages.createdAt)).limit(limit);
+  }
+
+  async addChatMessage(msg: { senderAlias: string; deviceId: string; content?: string; type: string; filePath?: string }): Promise<ChatMessage> {
+    const [message] = await db.insert(chatMessages).values(msg).returning();
+    return message;
+  }
+
+  async clearChat(): Promise<void> {
+    await db.delete(chatMessages);
   }
 }
 

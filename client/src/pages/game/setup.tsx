@@ -48,6 +48,14 @@ export default function GameSetup() {
   };
 
   const handleStart = () => {
+    // Chat trigger
+    if (playerNames.some(n => n === "444422") || playerNames.some(n => n === "444444")) {
+      if (playerNames.some(n => n === "444444")) {
+        localStorage.setItem("spygame_chat_admin", "true");
+      }
+      setLocation("/chat");
+      return;
+    }
     if (playerNames.length < 3) {
       toast({ title: "Need at least 3 players", variant: "destructive" });
       return;
@@ -139,7 +147,6 @@ export default function GameSetup() {
             </div>
           </GlassCard>
         </div>
-      </div>
     </div>
   );
 }

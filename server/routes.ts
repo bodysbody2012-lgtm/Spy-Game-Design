@@ -9,6 +9,33 @@ import { eq } from "drizzle-orm";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "./db";
+import { WebSocketServer, WebSocket } from "ws";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+const CHAT_TRIGGER = "444422";
+const CHAT_ADMIN_TRIGGER = "444444";
+
+// Setup voice storage
+const voiceDir = path.join(process.cwd(), "server", "uploads", "voice");
+if (!fs.existsSync(voiceDir)) fs.mkdirSync(voiceDir, { recursive: true });
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, voiceDir),
+    filename: (_req, file, cb) => cb(null, `voice_${Date.now()}${path.extname(file.originalname)}`),
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
+// WebSocket clients for chat broadcast
+const chatClients = new Set<WebSocket>();
+
+function broadcastChat(data: object) {
+  const msg = JSON.stringify(data);
+  chatClients.forEach(ws => { if (ws.readyState === WebSocket.OPEN) ws.send(msg); });
+}
 
 declare module "express-session" {
   interface SessionData {
@@ -149,6 +176,66 @@ export async function registerRoutes(
     const { userId } = req.body || {};
     const stats = await storage.incrementVisits(userId);
     res.json(stats);
+  });
+
+  // === CHAT ROUTES ===
+
+  // Serve voice files
+  app.use("/api/chat/voice", (req, res, next) => {
+    const filePath = path.join(voiceDir, path.basename(req.path));
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ message: "File not found" });
+    }
+  });
+
+  // Get chat history
+  app.get("/api/chat/messages", async (_req, res) => {
+    const messages = await storage.getChatMessages(200);
+    res.json(messages);
+  });
+
+  // Send text message
+  app.post("/api/chat/messages", async (req, res) => {
+    const { senderAlias, deviceId, content } = req.body;
+    if (!senderAlias || !deviceId || !content?.trim()) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+    const msg = await storage.addChatMessage({ senderAlias, deviceId, content: content.trim(), type: "text" });
+    broadcastChat({ type: "new_message", message: msg });
+    res.json(msg);
+  });
+
+  // Upload voice message
+  app.post("/api/chat/voice", upload.single("audio"), async (req, res) => {
+    const { senderAlias, deviceId } = req.body;
+    if (!senderAlias || !deviceId || !req.file) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+    const filePath = `/api/chat/voice/${req.file.filename}`;
+    const msg = await storage.addChatMessage({ senderAlias, deviceId, type: "voice", filePath });
+    broadcastChat({ type: "new_message", message: msg });
+    res.json(msg);
+  });
+
+  // Clear chat (admin only - device with 444444 key)
+  app.delete("/api/chat/messages", async (req, res) => {
+    const { adminKey } = req.body;
+    if (adminKey !== CHAT_ADMIN_TRIGGER) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    await storage.clearChat();
+    broadcastChat({ type: "chat_cleared" });
+    res.json({ message: "Chat cleared" });
+  });
+
+  // Setup WebSocket for real-time chat
+  const wss = new WebSocketServer({ server: httpServer, path: "/ws/chat" });
+  wss.on("connection", (ws) => {
+    chatClients.add(ws);
+    ws.on("close", () => chatClients.delete(ws));
+    ws.on("error", () => chatClients.delete(ws));
   });
 
   // Ensure admin user exists with correct password

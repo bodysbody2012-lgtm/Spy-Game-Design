@@ -19,6 +19,7 @@ const GameVote = lazy(() => import("@/pages/game/vote"));
 const GameResult = lazy(() => import("@/pages/game/result"));
 
 import Welcome from "@/pages/welcome";
+import ChatPage from "@/pages/chat";
 import { AudioController } from "@/components/audio-controller";
 
 function Router() {
@@ -39,6 +40,7 @@ function Router() {
         <Route path="/game/vote" component={GameVote} />
         <Route path="/game/result" component={GameResult} />
 
+        <Route path="/chat" component={ChatPage} />
         <Route component={NotFound} />
       </Switch>
     </Suspense>
