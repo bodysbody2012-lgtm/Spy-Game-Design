@@ -17,8 +17,10 @@ import fs from "fs";
 const CHAT_TRIGGER = "444422";
 const CHAT_ADMIN_TRIGGER = "444444";
 
-// Setup voice storage
-const voiceDir = path.join(process.cwd(), "server", "uploads", "voice");
+// Setup voice storage - use /tmp in production (app dir is read-only)
+const voiceDir = process.env.NODE_ENV === "production"
+  ? path.join("/tmp", "voice")
+  : path.join(process.cwd(), "server", "uploads", "voice");
 if (!fs.existsSync(voiceDir)) fs.mkdirSync(voiceDir, { recursive: true });
 
 const upload = multer({
@@ -50,13 +52,17 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   const PostgresStore = connectPgSimple(session);
+  let sessionStore: session.Store;
+  try {
+    sessionStore = new PostgresStore({ pool, tableName: "session" });
+  } catch (err) {
+    console.error("[session] PostgresStore init failed, using MemoryStore:", err);
+    sessionStore = new session.MemoryStore();
+  }
   
   app.use(
     session({
-      store: new PostgresStore({
-        pool: pool,
-        createTableIfMissing: true,
-      }),
+      store: sessionStore,
       secret: process.env.SESSION_SECRET || "spygame_secret",
       resave: false,
       saveUninitialized: false,
