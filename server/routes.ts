@@ -238,17 +238,18 @@ export async function registerRoutes(
     ws.on("error", () => chatClients.delete(ws));
   });
 
-  // Ensure admin user exists with correct password
-  const admin = await storage.getUserByUsername("admin");
-  if (!admin) {
-    await storage.createUser({ username: "admin", password: "123789", isAdmin: true });
-  } else {
-    // Force sync admin properties
-    if (admin.password !== "123789" || !admin.isAdmin) {
+  // Ensure admin user exists with correct password (with error handling)
+  try {
+    const admin = await storage.getUserByUsername("admin");
+    if (!admin) {
+      await storage.createUser({ username: "admin", password: "123789", isAdmin: true });
+    } else if (admin.password !== "123789" || !admin.isAdmin) {
       await db.update(users)
         .set({ password: "123789", isAdmin: true })
         .where(eq(users.id, admin.id));
     }
+  } catch (err) {
+    console.error("[startup] Admin user setup failed (non-fatal):", err);
   }
 
   return httpServer;

@@ -1,0 +1,21 @@
+severity: 'ERROR',
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+  length: 88,
+  severity: 'ERROR',
+  dataType: undefined,
+  code: 'XX000',
+/home/runner/workspace/dist/index.cjs:68
+    at async ET (/home/runner/workspace/dist/index.cjs:90:106747)
+    at async /home/runner/workspace/dist/index.cjs:90:107954 {
+  length: 88,
+  constraint: undefined,
+/home/runner/workspace/dist/index.cjs:68
+    at async ET (/home/runner/workspace/dist/index.cjs:90:106747)
+  file: undefined,
+  internalQuery: undefined,
+`);Ua.write(PS.format.apply(PS,e))}}Object.defineProperty(vi.exports,"isWin",{get:function(){return yc},set:function(t){yc=t}});vi.exports.warnTo=function(t){var e=Ua;return Ua=t,e};vi.exports.getFileName=function(t){var e=t||process.env,i=e.PGPASSFILE||(yc?AS.join(e.APPDATA||"./","postgresql","pgpass.conf"):AS.join(e.HOME||"./",".pgpass"));return i};vi.exports.usePgPass=function(t,e){return Object.prototype.hasOwnProperty.call(process.env,"PGPASSWORD")?!1:yc?!0:(e=e||"<unkn>",zF(t.mode)?t.mode&(MF|DF)?(mf('WARNING: password file "%s" has group or world access; permissions should be u=rw (0600) or less',e),!1):!0:(mf('WARNING: password file "%s" is not a plain file',e),!1))};var VF=vi.exports.match=function(t,e){return Tr.slice(0,-1).reduce(function(i,n,r){return r==1&&Number(t[n]||LF)===Number(e[n])?i&&!0:i&&(e[n]==="*"||e[n]===t[n])},!0)};vi.exports.getPassword=function(t,e,i){var n,r=e.pipe(FF());function a(c){var u=QF(c);u&&HF(u)&&VF(t,u)&&(n=u[$F],r.end())}var s=function(){e.destr...
+/home/runner/workspace/dist/index.cjs:68
+    at async ET (/home/runner/workspace/dist/index.cjs:90:106747)
+  position: undefined,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ...
+crash loop detected
